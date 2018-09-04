@@ -107,18 +107,19 @@ def get_authorid(url):
         print('Error1:', e)
         sys.exit()
 
-
+flag = True
 if __name__ == '__main__':
     n = 4
     argv = sys.argv
     url = argv[1]
+    global flag
     if url is None:
         print('you should input the url like: https://tuchong.com/1601417/')
         sys.exit()
     if not url.endswith('/'):
         url = url + '/'
     # folder_name = re.compile('(https|http):\/\/(.*?).tuchong.com\/').search(url) ? re.compile('(https|http):\/\/(.*?).tuchong.com\/').search(url) : url.split('.com/')[1].split('/')[0]
-    username = re.compile('(https|http):\/\/(.*?).tuchong.com\/').search(url)
+    username = re.compile('(https|http):\/\/(.*?).tuchong.com').search(url).group(2)
     if username is None:
         flag = False
         username = url.split('.com/')[1].split('/')[0]
@@ -137,13 +138,16 @@ if __name__ == '__main__':
                 request_url = 'https://tuchong.com/rest/2/sites/' + authorid + '/posts?count=20&page={0}&before_timestamp'.format(index)
             print('request_url:', request_url)
             req = requests.get(request_url, headers=headers, timeout=8)
-            if (req.status_code == 404):
-                print('all have done..')
-                sys.exit()
+            # if (req.status_code is 404):
+            #     print('all have done..')
+            #     sys.exit()
             index += 1
             # req.encoding = 'utf-8'
             jsondata = req.content.decode()
             # print('jsondata:', jsondata)
+            if json.loads(jsondata)["more"] is False:
+                print('all have done..')
+                sys.exit()
             data = json.loads(jsondata)["post_list"]
             img_src = []
             for item1 in data:
